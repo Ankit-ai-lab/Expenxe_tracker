@@ -14,10 +14,35 @@ const exportExcelBtn = document.getElementById("export-excel");
 // Load transactions from Local Storage
 let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
 
+// Function to calculate income, expense, and balance
+function calculateBalances(filteredTransactions = transactions) {
+    let totalIncome = 0, totalExpense = 0;
+
+    filteredTransactions.forEach(transaction => {
+        if (isIncomeCategory(transaction.category)) {
+            totalIncome += transaction.amount;
+        } else {
+            totalExpense += Math.abs(transaction.amount);
+        }
+    });
+
+    return {
+        totalIncome,
+        totalExpense,
+        totalBalance: totalIncome - totalExpense
+    };
+}
+
+// Function to check if the category is income-related
+function isIncomeCategory(category) {
+    return ["Salary", "Rent", "Freelance", "Investment"].includes(category);
+}
+
 // Function to update UI
 function updateUI(filteredTransactions = transactions) {
     transactionList.innerHTML = "";
-    let totalIncome = 0, totalExpense = 0, totalBalance = 0;
+    
+    const { totalIncome, totalExpense, totalBalance } = calculateBalances(filteredTransactions);
 
     filteredTransactions.forEach((transaction, index) => {
         const li = document.createElement("li");
@@ -25,17 +50,9 @@ function updateUI(filteredTransactions = transactions) {
                         <span>${transaction.amount > 0 ? "+" : "-"}₹${Math.abs(transaction.amount)}</span>
                         <em>(${transaction.date})</em>
                         <button onclick="deleteTransaction(${index})">X</button>`;
-        li.style.borderLeftColor = transaction.amount > 0 ? "green" : "red";
+        li.style.borderLeftColor = isIncomeCategory(transaction.category) ? "green" : "red";
         transactionList.appendChild(li);
-
-        if (transaction.amount > 0) {
-            totalIncome += transaction.amount;
-        } else {
-            totalExpense += Math.abs(transaction.amount);
-        }
     });
-
-    totalBalance = totalIncome - totalExpense;
 
     balance.textContent = `₹${totalBalance}`;
     income.textContent = `₹${totalIncome}`;
@@ -47,12 +64,19 @@ function updateUI(filteredTransactions = transactions) {
 // Function to add transaction
 form.addEventListener("submit", (e) => {
     e.preventDefault();
+
+    if (!description.value || !amount.value || !date.value) {
+        alert("Please fill in all fields.");
+        return;
+    }
+
     const transaction = {
         description: description.value,
         amount: Number(amount.value),
         category: category.value,
         date: date.value,
     };
+
     transactions.push(transaction);
     description.value = "";
     amount.value = "";
