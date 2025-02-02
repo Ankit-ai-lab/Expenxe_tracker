@@ -1,5 +1,6 @@
 # Expenxe_tracker
-This is builded by Ankit Gupta
+This is built by me --> by Ankit Gupta
 
 
-![image](https://github.com/user-attachments/assets/3cecc621-c630-4fae-89cd-e9252edf236b)
+![image](https://github.com/user-attachments/assets/bd4da003-90af-4044-8f8b-7ef17b6dd061)
+
